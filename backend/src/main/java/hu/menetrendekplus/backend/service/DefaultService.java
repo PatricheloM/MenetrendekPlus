@@ -25,6 +25,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static hu.menetrendekplus.backend.util.Coalesce.coalesce;
+
 @Service
 public class DefaultService {
 
@@ -117,8 +119,15 @@ public class DefaultService {
         body.setFunc(FunctionType.GET_ROUTES.funcName);
         body.setParams(params);
 
-        List<RouteDto> routes = mapper.map(handler.sendRequest(body).getResults(), RoutesResult.class).getTalalatok().values()
-                .stream().map(r -> routeConverter.convert(r)).collect(Collectors.toUnmodifiableList());
+        List<RouteDto> routes = coalesce(
+                mapper
+                        .map(handler.sendRequest(body).getResults(), RoutesResult.class)
+                        .getTalalatok().values().stream()
+                        .map(r -> routeConverter.convert(r))
+                        .collect(Collectors.toUnmodifiableList()),
+                Collections
+                        .emptyList()
+        );
 
         cachingService.cacheRoutesQuery(dto, routes);
 
