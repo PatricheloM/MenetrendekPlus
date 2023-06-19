@@ -43,6 +43,9 @@ public class DefaultService {
     @Autowired
     private RouteConverter routeConverter;
 
+    @Autowired
+    private CachingService cachingService;
+
     protected List<Station> getStationsBase(QueryStationsDto dto) throws IOException, URISyntaxException, InterruptedException {
 
         MenetrendekRequest<GetStations> body = new MenetrendekRequest<>();
@@ -69,11 +72,22 @@ public class DefaultService {
     }
 
     public Optional<StationDto> getSingleStation(String stationName) throws IOException, URISyntaxException, InterruptedException {
-        return getStationsBase(new QueryStationsDto(stationName, 1)).stream()
+        if (cachingService.isStationInCache(stationName)) {
+            return cachingService.getStationFromCache(stationName);
+        }
+        Optional<StationDto> station = getStationsBase(new QueryStationsDto(stationName, 1)).stream()
                 .map(s -> stationConverter.convert(s)).findFirst();
+        if (station.isPresent()) {
+            cachingService.cacheStation(station.get());
+        }
+        return station;
     }
 
     public List<RouteDto> getRoutes(QueryRoutesDto dto) throws IOException, URISyntaxException, InterruptedException {
+
+        if (cachingService.isRoutesQueryInCache(dto)) {
+            return cachingService.getRoutesQueryFromCache(dto);
+        }
 
         MenetrendekRequest<GetRoutes> body = new MenetrendekRequest<>();
 
@@ -103,8 +117,11 @@ public class DefaultService {
         body.setFunc(FunctionType.GET_ROUTES.funcName);
         body.setParams(params);
 
-
-        return mapper.map(handler.sendRequest(body).getResults(), RoutesResult.class).getTalalatok().values()
+        List<RouteDto> routes = mapper.map(handler.sendRequest(body).getResults(), RoutesResult.class).getTalalatok().values()
                 .stream().map(r -> routeConverter.convert(r)).collect(Collectors.toUnmodifiableList());
+
+        cachingService.cacheRoutesQuery(dto, routes);
+
+        return routes;
     }
 }
