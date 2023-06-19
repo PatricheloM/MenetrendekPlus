@@ -1,0 +1,22 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "QueryStationDto",
+  "description": "Station query.",
+  "type": "object",
+  "properties": {
+    "query": {
+      "description": "String query.",
+      "type": "string"
+    },
+    "maxResults": {
+      "description": "Maximum results.",
+      "type": "number"
+    },
+    "isSimple": {
+      "description": "If true, only gives back the station names.",
+      "type": "boolean"
+    }
+  },
+  "required": ["query", "maxResults"],
+  "additionalProperties": false
+}

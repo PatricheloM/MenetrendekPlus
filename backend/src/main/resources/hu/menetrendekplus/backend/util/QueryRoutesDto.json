@@ -1,0 +1,39 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "QueryRouteDto",
+  "description": "Route query.",
+  "type": "object",
+  "properties": {
+    "startingStation": {
+      "description": "Starting station.",
+      "type": "string"
+    },
+    "arrivingStation": {
+      "description": "Arriving station.",
+      "type": "string"
+    },
+    "date": {
+      "description": "Date in xxxx-xx-xx format.",
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+    },
+    "hour": {
+      "description": "Query start hour.",
+      "type": "number"
+    },
+    "min": {
+      "description": "Query start minute.",
+      "type": "number"
+    },
+    "maxChanges": {
+      "description": "Maximum line changes.",
+      "type": "number"
+    },
+    "maxWalk": {
+      "description": "Maximum walking distance.",
+      "type": "number"
+    }
+  },
+  "required": ["startingStation", "arrivingStation", "date", "hour", "min", "maxChanges", "maxWalk"],
+  "additionalProperties": false
+}
