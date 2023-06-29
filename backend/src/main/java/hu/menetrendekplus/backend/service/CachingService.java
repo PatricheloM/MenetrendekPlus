@@ -68,4 +68,8 @@ public class CachingService {
     public List<RouteDto> getRoutesQueryFromCache(QueryRoutesDto dto) throws JsonProcessingException {
         return mapper.readValue(repository.get(mapper.writeValueAsString(dto)), new TypeReference<>() {});
     }
+
+    public boolean isCacheAvailable() {
+        return repository.ping();
+    }
 }

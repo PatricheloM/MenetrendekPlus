@@ -74,12 +74,15 @@ public class DefaultService {
     }
 
     public Optional<StationDto> getSingleStation(String stationName) throws IOException, URISyntaxException, InterruptedException {
-        if (cachingService.isStationInCache(stationName)) {
+
+        boolean isCacheAvailable = cachingService.isCacheAvailable();
+
+        if (isCacheAvailable && cachingService.isStationInCache(stationName)) {
             return cachingService.getStationFromCache(stationName);
         }
         Optional<StationDto> station = getStationsBase(new QueryStationsDto(stationName, 1)).stream()
                 .map(s -> stationConverter.convert(s)).findFirst();
-        if (station.isPresent()) {
+        if (isCacheAvailable && station.isPresent()) {
             cachingService.cacheStation(station.get());
         }
         return station;
@@ -87,7 +90,9 @@ public class DefaultService {
 
     public List<RouteDto> getRoutes(QueryRoutesDto dto) throws IOException, URISyntaxException, InterruptedException {
 
-        if (cachingService.isRoutesQueryInCache(dto)) {
+        boolean isCacheAvailable = cachingService.isCacheAvailable();
+
+        if (isCacheAvailable && cachingService.isRoutesQueryInCache(dto)) {
             return cachingService.getRoutesQueryFromCache(dto);
         }
 
@@ -129,7 +134,9 @@ public class DefaultService {
                         .emptyList()
         );
 
-        cachingService.cacheRoutesQuery(dto, routes);
+        if (isCacheAvailable) {
+            cachingService.cacheRoutesQuery(dto, routes);
+        }
 
         return routes;
     }
